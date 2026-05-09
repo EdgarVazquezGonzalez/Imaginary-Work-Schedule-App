@@ -31,4 +31,8 @@ infinite loops. This can be fixed if I add the once() function into the query. I
 Backtracking through multiple schedules made it seem like the program was stuck in an infinite loop.
 I fixed it by adding a cut (!) at the end of plan/1. Once a valid schedule is found, prolog commits to that solution and stops searching for alternatives.
 
+10:28 pm
+
+The idleworkstation test was failing because the fallback rules that i had at the top of the file was
+interfering with the input facts. I deleted them and replaced them with helper predicates. This fixed the issue.
   
