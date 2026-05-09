@@ -22,4 +22,8 @@ The following rules must be followed
 - employees should not be assigned to shifts that they are supposed to avoid
 - if no valid schedue can be made, /plan fails
 
+## 5/8/2026 9:56 pm
+Testing was an issue because my path destination was messsed up so I had to troubleshoot for that. I am now able to compile and test. Issue that I am running into is 
+infinite loops. This can be fixed if I add the once() function into the query. I could also edit the testing.pl file but not sure if I am allowed. When implementing once() into query lines my outputs do match the output examples. 
+
   
