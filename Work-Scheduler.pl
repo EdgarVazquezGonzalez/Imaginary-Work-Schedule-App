@@ -40,31 +40,34 @@ avoids_shift(Employee, Shift) :-
 
    Main predicate. It creates a plan with three parts:
    morning schedule, evening schedule, and night schedule.
+
+   No cut is used here because plan/1 should be able to
+   generate more than one valid schedule through backtracking.
    --------------------------------------------------- */
 
 plan(plan(Morning, Evening, Night)) :-
     findall(E, employee(E), Employees),
 
-    make_shift(morning, Employees, EmployeesLeft1, Morning),
-    make_shift(evening, EmployeesLeft1, EmployeesLeft2, Evening),
-    make_shift(night, EmployeesLeft2, [], Night),
-
-    % Cut is used so Prolog stops after finding one valid schedule.
-    !.
+    make_shift(morning, [evening, night], Employees, EmployeesLeft1, Morning),
+    make_shift(evening, [night], EmployeesLeft1, EmployeesLeft2, Evening),
+    make_shift(night, [], EmployeesLeft2, [], Night),!.
 
 
 /* ---------------------------------------------------
-   make_shift/4
+   make_shift/5
 
-   make_shift(Shift, EmployeesBefore, EmployeesAfter, Schedule)
+   make_shift(Shift, FutureShifts, EmployeesBefore, EmployeesAfter, Schedule)
 
-   This makes the schedule for one shift.
+   This makes the schedule for one shift. FutureShifts is used
+   to check whether the remaining employees can still fit in
+   the shifts that come later.
    --------------------------------------------------- */
 
-make_shift(Shift, EmployeesBefore, EmployeesAfter, Schedule) :-
+make_shift(Shift, FutureShifts, EmployeesBefore, EmployeesAfter, Schedule) :-
     get_open_workstations(Shift, Workstations),
     valid_workstation_requirements(Workstations),
-    assign_workstations(Shift, Workstations, EmployeesBefore, EmployeesAfter, Schedule).
+    assign_workstations(Shift, Workstations, EmployeesBefore, EmployeesAfter, Schedule),
+    employees_can_fit_future(FutureShifts, EmployeesAfter).
 
 
 /* ---------------------------------------------------
@@ -99,6 +102,55 @@ valid_workstation_requirements([W | Rest]) :-
     workstation(W, Min, Max),
     Min =< Max,
     valid_workstation_requirements(Rest).
+
+
+/* ---------------------------------------------------
+   employees_can_fit_future/2
+
+   Checks that the employees left after a shift can still fit
+   into the remaining future shifts.
+
+   This helps avoid long searches where Prolog leaves too many
+   employees for a later shift that does not have enough capacity.
+   --------------------------------------------------- */
+
+employees_can_fit_future([], EmployeesLeft) :-
+    length(EmployeesLeft, 0).
+
+employees_can_fit_future(FutureShifts, EmployeesLeft) :-
+    FutureShifts \= [],
+    length(EmployeesLeft, Count),
+    total_max_capacity(FutureShifts, MaxCapacity),
+    Count =< MaxCapacity.
+
+
+/* ---------------------------------------------------
+   total_max_capacity/2
+
+   Adds up the maximum employee capacity for a list of shifts.
+   --------------------------------------------------- */
+
+total_max_capacity([], 0).
+
+total_max_capacity([Shift | Rest], Total) :-
+    get_open_workstations(Shift, Workstations),
+    shift_max_capacity(Workstations, ShiftMax),
+    total_max_capacity(Rest, RestMax),
+    Total is ShiftMax + RestMax.
+
+
+/* ---------------------------------------------------
+   shift_max_capacity/2
+
+   Adds up the max values for all active workstations in one shift.
+   --------------------------------------------------- */
+
+shift_max_capacity([], 0).
+
+shift_max_capacity([W | Rest], Total) :-
+    workstation(W, _, Max),
+    shift_max_capacity(Rest, RestTotal),
+    Total is Max + RestTotal.
 
 
 /* ---------------------------------------------------
