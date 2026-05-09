@@ -29,7 +29,7 @@ plan(plan(Morning, Evening, Night)) :-
 
     make_shift(morning, Employees, EmployeesLeft1, Morning),
     make_shift(evening, EmployeesLeft1, EmployeesLeft2, Evening),
-    make_shift(night, EmployeesLeft2, [], Night).
+    make_shift(night, EmployeesLeft2, [], Night),!.
 
 
 /* ---------------------------------------------------
