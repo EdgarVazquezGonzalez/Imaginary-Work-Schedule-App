@@ -12,15 +12,6 @@
 */
 
 
-/* ---------------------------------------------------
-   Helper predicates for optional facts
-
-   These are used instead of writing fallback rules like:
-   workstation_idle(_, _) :- fail.
-
-   The fallback rules caused problems because they could interfere
-   with the actual input facts.
-   --------------------------------------------------- */
 
 is_idle(Workstation, Shift) :-
     current_predicate(workstation_idle/2),
