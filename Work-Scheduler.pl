@@ -12,6 +12,16 @@
 */
 
 
+/* ---------------------------------------------------
+   Helper predicates for optional facts
+
+   These are used instead of writing fallback rules like:
+   workstation_idle(_, _) :- fail.
+
+   The fallback rules caused problems because they could interfere
+   with the actual input facts.
+   --------------------------------------------------- */
+
 is_idle(Workstation, Shift) :-
     current_predicate(workstation_idle/2),
     workstation_idle(Workstation, Shift).
@@ -53,6 +63,7 @@ plan(plan(Morning, Evening, Night)) :-
 
 make_shift(Shift, EmployeesBefore, EmployeesAfter, Schedule) :-
     get_open_workstations(Shift, Workstations),
+    valid_workstation_requirements(Workstations),
     assign_workstations(Shift, Workstations, EmployeesBefore, EmployeesAfter, Schedule).
 
 
@@ -70,6 +81,24 @@ get_open_workstations(Shift, Workstations) :-
         ),
         Workstations
     ).
+
+
+/* ---------------------------------------------------
+   valid_workstation_requirements/1
+
+   Checks that every active workstation has a possible
+   employee range.
+
+   Example:
+   workstation(5, 3, 1) is impossible because Min > Max.
+   --------------------------------------------------- */
+
+valid_workstation_requirements([]).
+
+valid_workstation_requirements([W | Rest]) :-
+    workstation(W, Min, Max),
+    Min =< Max,
+    valid_workstation_requirements(Rest).
 
 
 /* ---------------------------------------------------
