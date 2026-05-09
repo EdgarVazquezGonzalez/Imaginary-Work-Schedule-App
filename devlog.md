@@ -26,4 +26,9 @@ The following rules must be followed
 Testing was an issue because my path destination was messsed up so I had to troubleshoot for that. I am now able to compile and test. Issue that I am running into is 
 infinite loops. This can be fixed if I add the once() function into the query. I could also edit the testing.pl file but not sure if I am allowed. When implementing once() into query lines my outputs do match the output examples. 
 
+10:05 pm 
+
+Backtracking through multiple schedules made it seem like the program was stuck in an infinite loop.
+I fixed it by adding a cut (!) at the end of plan/1. Once a valid schedule is found, prolog commits to that solution and stops searching for alternatives.
+
   
