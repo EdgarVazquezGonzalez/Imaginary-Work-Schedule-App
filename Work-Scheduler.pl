@@ -30,3 +30,41 @@ plan(plan(Morning, Evening, Night)) :-
     make_shift(morning, Employees, EmployeesLeft1, Morning),
     make_shift(evening, EmployeesLeft1, EmployeesLeft2, Evening),
     make_shift(night, EmployeesLeft2, [], Night).
+
+    /* ---------------------------------------------------
+   make_shift/4
+
+   make_shift(Shift, EmployeesBefore, EmployeesAfter, Schedule)
+
+   This makes the schedule for one shift.
+   --------------------------------------------------- */
+
+make_shift(Shift, EmployeesBefore, EmployeesAfter, Schedule) :-
+    get_open_workstations(Shift, Workstations),
+    assign_workstations(Shift, Workstations, EmployeesBefore, EmployeesAfter, Schedule).
+
+
+/* ---------------------------------------------------
+   get_open_workstations/2
+
+   Gets all workstations that are not idle during this shift.
+   --------------------------------------------------- */
+
+get_open_workstations(Shift, Workstations) :-
+    findall(W,
+        (
+            workstation(W, _, _),
+            \+ workstation_idle(W, Shift)
+        ),
+        Workstations
+    ).
+
+
+/* ---------------------------------------------------
+   assign_workstations/5
+
+   Goes through each workstation and assigns workers to it.
+   --------------------------------------------------- */
+
+
+    
