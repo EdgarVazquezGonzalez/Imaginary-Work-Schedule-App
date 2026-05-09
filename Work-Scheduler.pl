@@ -12,9 +12,17 @@
 */
 
 
-workstation_idle(_, _) :- fail.
-avoid_workstation(_, _) :- fail.
-avoid_shift(_, _) :- fail.
+is_idle(Workstation, Shift) :-
+    current_predicate(workstation_idle/2),
+    workstation_idle(Workstation, Shift).
+
+avoids_station(Employee, Workstation) :-
+    current_predicate(avoid_workstation/2),
+    avoid_workstation(Employee, Workstation).
+
+avoids_shift(Employee, Shift) :-
+    current_predicate(avoid_shift/2),
+    avoid_shift(Employee, Shift).
 
 
 /* ---------------------------------------------------
@@ -29,7 +37,10 @@ plan(plan(Morning, Evening, Night)) :-
 
     make_shift(morning, Employees, EmployeesLeft1, Morning),
     make_shift(evening, EmployeesLeft1, EmployeesLeft2, Evening),
-    make_shift(night, EmployeesLeft2, [], Night),!.
+    make_shift(night, EmployeesLeft2, [], Night),
+
+    % Cut is used so Prolog stops after finding one valid schedule.
+    !.
 
 
 /* ---------------------------------------------------
@@ -55,7 +66,7 @@ get_open_workstations(Shift, Workstations) :-
     findall(W,
         (
             workstation(W, _, _),
-            \+ workstation_idle(W, Shift)
+            \+ is_idle(W, Shift)
         ),
         Workstations
     ).
@@ -144,5 +155,5 @@ pick_n_employees(N, W, Shift, [E | Rest], PickedEmployees, [E | EmployeesLeft]) 
    --------------------------------------------------- */
 
 can_work(Employee, Workstation, Shift) :-
-    \+ avoid_workstation(Employee, Workstation),
-    \+ avoid_shift(Employee, Shift).
+    \+ avoids_station(Employee, Workstation),
+    \+ avoids_shift(Employee, Shift).
